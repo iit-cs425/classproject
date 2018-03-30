@@ -1,7 +1,7 @@
 # classproject
 Class project for cs452
 
-This README contains information about how to build and run this app.  If you come across anything tricky, or just good to know for four people who don't know NodeJS, put it in here.
+This README contains information about how to build and run this app.  If you come across anything tricky, or just good to know for four people who don't know Node.js, put it in here.
 
 ## How do you set up and run the app?
 The app (will be) laid out like [this sample app](https://github.com/GoogleCloudPlatform/nodejs-docs-samples/tree/master/appengine/hello-world).  It contains:
