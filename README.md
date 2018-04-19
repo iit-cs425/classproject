@@ -15,6 +15,15 @@ First, the requirements specified in `package.json` need to be downloaded.  Run 
 
 ## What's Travis doing?
 
-When commits are pushed, Travis CI will automatically run tests and, if they're successful, deploy the app to the server. `.travis.yml` contains the Travis settings; you can get to the Travis dashboard through GitHub by going to Settings > Integrations & Services > Travis CI.  (You may need to link Travis with your GitHub account first.)
+When commits are pushed, Travis CI will automatically run tests. `.travis.yml` contains the Travis settings; you can get to the Travis dashboard through GitHub by going to Settings > Integrations & Services > Travis CI.  (You may need to link Travis with your GitHub account first.)
 
 Notes for Gabe - we're on Google Compute Engine and the easy Travis solution is for Google App Engine.  Maybe it would be better to use Jenkins instead.
+
+## Installing in a clean directory:
+
+```
+sudo apt-get install nodejs git gawk gcc-6 mysql-server mysql-client
+git clone https://github.com/iit-cs425/classproject.git
+cd classproject
+npm install
+```
