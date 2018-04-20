@@ -21,7 +21,6 @@ CREATE TABLE Warehouse
   ManagerID INT NOT NULL,
   PRIMARY KEY (WarehouseID),
   FOREIGN KEY (AddressID) REFERENCES Address(AddressID),
-  FOREIGN KEY (ManagerID) REFERENCES User(UserID)
 );
 
 CREATE TABLE Product
@@ -70,6 +69,9 @@ CREATE TABLE User
   FOREIGN KEY (WarehouseID) REFERENCES Warehouse(WarehouseID),
   UNIQUE (Username)
 );
+-- now that we've defined User, we can add the Warehouse->User fkey
+ALTER TABLE Warehouse
+ADD FOREIGN KEY (ManagerID) REFERENCES User(UserID);
 
 CREATE TABLE EmpAssignedToWarehouse
 (
