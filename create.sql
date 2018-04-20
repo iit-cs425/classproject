@@ -5,7 +5,7 @@ CREATE TABLE Address
   ContactName VARCHAR(64) NOT NULL,
   CompanyName VARCHAR(64),
   District VARCHAR(64),
-  Province/State VARCHAR(64) NOT NULL,
+  Province_State VARCHAR(64) NOT NULL,
   Nation VARCHAR(64) NOT NULL,
   PostalCode VARCHAR(16) NOT NULL,
   City VARCHAR(32) NOT NULL,
