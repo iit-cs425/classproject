@@ -1,6 +1,7 @@
 language: node_js
 node_js:
   - "node" # test against latest stable Node.js version
-services: mysql
+addons:
+  mariadb: '10.1'
 before_install:
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS cs425;'
+  - mysql < create.sql
