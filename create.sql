@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS cs425;
 USE cs425;
 
-CREATE TABLE Address
+CREATE TABLE IF NOT EXISTS Address
 (
   ContactName VARCHAR(64) NOT NULL,
   CompanyName VARCHAR(64),
@@ -14,7 +14,7 @@ CREATE TABLE Address
   PRIMARY KEY (AddressID)
 );
 
-CREATE TABLE Warehouse
+CREATE TABLE IF NOT EXISTS Warehouse
 (
   WarehouseID INT NOT NULL,
   RegionName VARCHAR(32) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE Warehouse
   FOREIGN KEY (AddressID) REFERENCES Address(AddressID)
 );
 
-CREATE TABLE User
+CREATE TABLE IF NOT EXISTS User
 (
   Username VARCHAR(32) NOT NULL,
   IsAdmin BIT NOT NULL,
@@ -45,7 +45,7 @@ ALTER TABLE Warehouse
 ADD FOREIGN KEY (ManagerID) REFERENCES User(UserID);
 
 
-CREATE TABLE Product
+CREATE TABLE IF NOT EXISTS Product
 (
   Name VARCHAR(32) NOT NULL,
   Description VARCHAR(128) NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE Product
   FOREIGN KEY (MerchantID) REFERENCES User(UserID)
 );
 
-CREATE TABLE Category
+CREATE TABLE IF NOT EXISTS Category
 (
   Name VARCHAR(32) NOT NULL,
   CategoryID INT NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE Category
   FOREIGN KEY (MerchantID) REFERENCES User(UserID)
 );
 
-CREATE TABLE EmpAssignedToWarehouse
+CREATE TABLE IF NOT EXISTS EmpAssignedToWarehouse
 (
   AssignmentID INT NOT NULL,
   WarehouseID INT NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE EmpAssignedToWarehouse
   FOREIGN KEY (EmployeeID) REFERENCES User(UserID)
 );
 
-CREATE TABLE ProductInCategory
+CREATE TABLE IF NOT EXISTS ProductInCategory
 (
   ProductInCategoryID INT NOT NULL,
   ProductID INT NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE ProductInCategory
   FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
 );
 
-CREATE TABLE UserHasAddress
+CREATE TABLE IF NOT EXISTS UserHasAddress
 (
   UserHasAddressID INT NOT NULL,
   AddressID INT NOT NULL,
