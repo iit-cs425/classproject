@@ -1,3 +1,4 @@
+CREATE DATABASE IF NOT EXISTS cs425;
 USE cs425;
 
 CREATE TABLE Address
@@ -20,37 +21,7 @@ CREATE TABLE Warehouse
   AddressID INT NOT NULL,
   ManagerID INT NOT NULL,
   PRIMARY KEY (WarehouseID),
-  FOREIGN KEY (AddressID) REFERENCES Address(AddressID),
-);
-
-CREATE TABLE Product
-(
-  Name VARCHAR(32) NOT NULL,
-  Description VARCHAR(128) NOT NULL,
-  Attribute1Name VARCHAR(32),
-  Attribute1Value VARCHAR(32),
-  Attribute2Name VARCHAR(32),
-  Attribute2Value VARCHAR(32),
-  QuantityNow INT NOT NULL,
-  QuantityLow INT NOT NULL,
-  QuantityRefill INT NOT NULL,
-  Price MONEY NOT NULL,
-  Photograph VARCHAR(64),
-  ProductID INT NOT NULL,
-  WarehouseID INT NOT NULL,
-  MerchantID INT NOT NULL,
-  PRIMARY KEY (ProductID),
-  FOREIGN KEY (WarehouseID) REFERENCES Warehouse(WarehouseID),
-  FOREIGN KEY (MerchantID) REFERENCES User(UserID)
-);
-
-CREATE TABLE Category
-(
-  Name VARCHAR(32) NOT NULL,
-  CategoryID INT NOT NULL,
-  MerchantID INT NOT NULL,
-  PRIMARY KEY (CategoryID),
-  FOREIGN KEY (MerchantID) REFERENCES User(UserID)
+  FOREIGN KEY (AddressID) REFERENCES Address(AddressID)
 );
 
 CREATE TABLE User
@@ -72,6 +43,37 @@ CREATE TABLE User
 -- now that we've defined User, we can add the Warehouse->User fkey
 ALTER TABLE Warehouse
 ADD FOREIGN KEY (ManagerID) REFERENCES User(UserID);
+
+
+CREATE TABLE Product
+(
+  Name VARCHAR(32) NOT NULL,
+  Description VARCHAR(128) NOT NULL,
+  Attribute1Name VARCHAR(32),
+  Attribute1Value VARCHAR(32),
+  Attribute2Name VARCHAR(32),
+  Attribute2Value VARCHAR(32),
+  QuantityNow INT NOT NULL,
+  QuantityLow INT NOT NULL,
+  QuantityRefill INT NOT NULL,
+  Price DECIMAL(10,2) NOT NULL,
+  Photograph VARCHAR(64),
+  ProductID INT NOT NULL,
+  WarehouseID INT NOT NULL,
+  MerchantID INT NOT NULL,
+  PRIMARY KEY (ProductID),
+  FOREIGN KEY (WarehouseID) REFERENCES Warehouse(WarehouseID),
+  FOREIGN KEY (MerchantID) REFERENCES User(UserID)
+);
+
+CREATE TABLE Category
+(
+  Name VARCHAR(32) NOT NULL,
+  CategoryID INT NOT NULL,
+  MerchantID INT NOT NULL,
+  PRIMARY KEY (CategoryID),
+  FOREIGN KEY (MerchantID) REFERENCES User(UserID)
+);
 
 CREATE TABLE EmpAssignedToWarehouse
 (
