@@ -1,3 +1,18 @@
+/**
+ * Copyright 2017, Google, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 'use strict';
 
 // [START app]
@@ -29,10 +44,27 @@ app.use(bodyParser.urlencoded({ extended: false }));
 var mysql = require('mysql');
 
 var con = mysql.createConnection({
-	  host: "localhost",
-	  user: "cs425",
-	  password: "cs425",
-	  database: "cs425"
+	host: "localhost",
+	user: "cs425",
+	password: "cs425",
+	database: "cs425",
+	typeCast: function castField( field, useDefaultTypeCasting ) {
+		// We only want to cast bit fields that have a single-bit in them. If the field
+		// has more than one bit, then we cannot assume it is supposed to be a Boolean.
+
+		if ( ( field.type === "BIT" ) && ( field.length === 1 ) ) {
+
+			var bytes = field.buffer();
+
+			// A Buffer in Node represents a collection of 8-bit unsigned integers.
+			// Therefore, our single "bit field" comes back as the bits '0000 0001',
+			// which is equivalent to the number 1.
+			return( bytes[ 0 ] === 1 );
+
+		}
+
+		return( useDefaultTypeCasting() );
+	}
 });
 
 con.connect(function(err) {
@@ -52,7 +84,7 @@ app.get('/', (req, res) => {
 app.get('/cookies', (req, res) => {
 	res.status(200).send(req.signedCookies).end();
 	console.log("Cookies: ", req.signedCookies)
-	console.log("user_name: ", req.signedCookies['user_name'])
+	console.log("Username: ", req.signedCookies['Username'])
 });
 
 app.get('/cookie2-set', (req,res)=>{
@@ -87,24 +119,47 @@ app.get('/process_get', function (req, res) {
 
 app.post('/process_login', urlencodedParser, function (req, res) {
    // Prepare output in JSON format
-   var response = {
-      user_name:req.body.user_name,
-      password:req.body.password
-   };
-   console.log(response);
-   // res.end(JSON.stringify(response));
+   console.log(req.body);
 
-    let options = {
-        maxAge: 1000 * 60 * 5, // would expire after 5 minutes
-        httpOnly: true, // The cookie only accessible by the web server
-        signed: true // Indicates if the cookie should be signed
+    let nameRE = RegExp ("^[-a-z0-9_']{1,32}$");
+
+    if (!nameRE.test(req.body.Username)) {
+	res.status(400);
+	res.send ("Illegal Name");
+	return;
     }
 
-    // Set cookie
-    res.cookie('user_name', req.body.user_name, options) // options is optional
-    res.send('');
-    console.log ("Cookie set done");
 
+    con.query('SELECT * from User where Username = "' + req.body.Username + '"', function (error, results, fields) {
+	  if (error) throw error;
+	  if (results.length === 0) {
+		res.status(400);
+		res.send ("Unknown Name");
+	} else {
+		console.log(results[0]);
+		// if (results[0].PasswordHash === req.body.password) {
+		if (true) {
+			console.log ("Password Match");
+			let options = {
+				maxAge: 1000 * 60 * 5, // would expire after 5 minutes
+				httpOnly: true, // The cookie only accessible by the web server
+				signed: true // Indicates if the cookie should be signed
+			}
+
+			res.cookie('Username', req.body.Username, options);
+			res.cookie('UserID', results[0].UserID, options);
+			res.cookie('IsAdmin', results[0].IsAdmin, options);
+			res.cookie('IsEmployee', results[0].IsEmployee, options);
+			res.cookie('IsMerchant', results[0].IsMerchant, options);
+			res.cookie('WarehouseID', results[0].WarehouseID, options);
+			// res.redirect ("/cookies");
+			res.redirect ("/LICENSE.html");
+		} else {
+			res.status(400);
+			res.send ("Bad Password");
+		}
+	}
+})
 })
 
 app.post('/process_post', urlencodedParser, function (req, res) {
