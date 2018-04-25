@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS User
   EmailAddress VARCHAR(64) NOT NULL,
   UserID INT NOT NULL AUTO_INCREMENT,
   PasswordSalt VARCHAR(64) NOT NULL,
-  WarehouseID INT NOT NULL,
+  WarehouseID INT,
   PRIMARY KEY (UserID),
   FOREIGN KEY (WarehouseID) REFERENCES Warehouse(WarehouseID),
   UNIQUE (Username)
