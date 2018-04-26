@@ -16,7 +16,7 @@ The app is laid out like [this sample app](https://github.com/GoogleCloudPlatfor
     ```
     sudo apt-get install nodejs git gawk gcc-6 mysql-server mysql-client
     ```
-    On a Windows computer, you'll need to install Git, MariaDB, and Node.js.
+    On a Windows computer, you'll need to install Git, [MariaDB](https://downloads.mariadb.org/mariadb/10.2.14/#os_group=windows), and [Node.js](https://nodejs.org/en/download/).
  2. Set up MariaDB:
     - Make sure to enable networking.  You can do this by selecting the option as you're installing, or by removing the `skip-networking` line in your `my.ini`.
     - Add a `cs425` user and set their permissions:
