@@ -16,13 +16,25 @@ The app is laid out like [this sample app](https://github.com/GoogleCloudPlatfor
     ```
     sudo apt-get install nodejs git gawk gcc-6 mysql-server mysql-client
     ```
-    On your own computer, you'll need to install Git, MariaDB, and Node.js.  Node is very easy to install, but MariaDB will need some extra configuration.  I edited my `my.ini` configuration to remove the `skip-networking` line, added a `cs425` user, and ran ``GRANT ALL PRIVILEGES ON `cs425`.* TO 'cs425'@'localhost';``.
-
- 2. Download the project from GitHub:
+    On a Windows computer, you'll need to install Git, MariaDB, and Node.js.
+ 2. Set up MariaDB:
+    - Make sure to enable networking.  You can do this by selecting the option as you're installing, or by removing the `skip-networking` line in your `my.ini`.
+    - Add a `cs425` user and set their permissions:
+```
+C:\Program Files\MariaDB 10.2\bin>mysql --user=root --password
+MariaDB [(none)]> CREATE USER cs425@localhost IDENTIFIED BY 'cs425';
+MariaDB [(none)]>``GRANT ALL PRIVILEGES ON `cs425`.* TO 'cs425'@'localhost';``
+```
+    - Create a `cs425` database:
+```
+C:\Program Files\MariaDB 10.2\bin>mysql --user=root --password
+MariaDB [(none)]> CREATE DATABASE cs425;
+```
+ 3. Download the project from GitHub:
     ```
     git clone https://github.com/iit-cs425/classproject.git
     ```
- 3. Install required Node packages:
+ 4. Install required Node packages:
 	```
 	cd classproject
 	npm install
