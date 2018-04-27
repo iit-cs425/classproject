@@ -1,0 +1,44 @@
+doctype html
+html(lang="en")
+  head
+    title= "Address change"
+  body
+    h1 Your addresses
+    each address in addresses
+        table(border=1)
+            tr
+                td ContactName
+                td #{address.get().ContactName}
+            tr
+                td CompanyName
+                td #{address.get().CompanyName}
+            tr
+                td District
+                td #{address.get().District}
+            tr
+                td Province_State
+                td #{address.get().Province_State}
+            tr
+                td Nation
+                td #{address.get().Nation}
+            tr
+                td PostalCode
+                td #{address.get().PostalCode}
+            tr
+                td City
+                td #{address.get().City}
+        br
+    else
+        p You don't have any addresses!
+
+
+
+//- ContactName VARCHAR(64) NOT NULL,
+//- CompanyName VARCHAR(64),
+//- District VARCHAR(64),
+//- Province_State VARCHAR(64) NOT NULL,
+//- Nation VARCHAR(64) NOT NULL,
+//- PostalCode VARCHAR(16) NOT NULL,
+//- City VARCHAR(32) NOT NULL,
+//- AddressID INT NOT NULL AUTO_INCREMENT,
+//- PRIMARY KEY (AddressID)

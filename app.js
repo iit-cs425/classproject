@@ -196,10 +196,16 @@ app.post('/file_upload', upload.single('file-to-upload'), (req, res) => {
 });
 
 
-app.get('/change_address', function(req, res) {
-    res.render('change_address', {
-      formParams: 'foo'
+app.get('/addresses', function(req, res) {
+  // ask a user to select an address from ones they've inputted already.
+  // User.findById(req.signedCookies['UserID']).then(user => {
+  User.findById(1).then(user => {
+    user.getAddresses().then(results => {
+      res.render('show_addresses', {
+        addresses: results
+      });
     });
+  });
 });
 
 
