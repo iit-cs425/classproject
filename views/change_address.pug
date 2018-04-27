@@ -1,0 +1,27 @@
+doctype html
+html(lang="en")
+  head
+    title= "Address change"
+  body
+    h1 Address change
+    form(action="process_login",method="POST")
+        | Contact name:
+        input(type="text", name="contactname", value="prefilled text")
+        br
+        | Company Name (optional):
+        input(type="text", name="companyname")
+        br
+        | District (optional):
+        input(type="text", name="district")
+        br
+        input(type="submit", value="Submit")
+
+//- ContactName VARCHAR(64) NOT NULL,
+//- CompanyName VARCHAR(64),
+//- District VARCHAR(64),
+//- Province_State VARCHAR(64) NOT NULL,
+//- Nation VARCHAR(64) NOT NULL,
+//- PostalCode VARCHAR(16) NOT NULL,
+//- City VARCHAR(32) NOT NULL,
+//- AddressID INT NOT NULL AUTO_INCREMENT,
+//- PRIMARY KEY (AddressID)

@@ -166,7 +166,11 @@ app.post('/file_upload', upload.single('file-to-upload'), (req, res) => {
 });
 
 
-// app.use(express.static('public'));
+app.get('/change_address', function(req, res) {
+    res.render('change_address', {
+      formParams: 'foo'
+    });
+});
 
 
 // Start the server
