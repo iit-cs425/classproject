@@ -1,5 +1,21 @@
+/**
+ * Copyright 2017, Google, Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 'use strict';
 
+// [START app]
 console.log( __filename );
 
 const express = require('express');
@@ -8,12 +24,8 @@ const app = express();
 const cookieParser = require('cookie-parser');
 app.use(cookieParser("cs425"));
 
-// Set up Pug view engine to render things in /views
-const path = require('path');
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
 
-
+//
 const fs = require("fs");
 
 const bodyParser = require('body-parser');
@@ -22,45 +34,16 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const multer  = require('multer');
 const upload = multer({
 	  dest: 'uploads/' // this saves your file into a directory called "uploads"
-});
+}); 
 
+const http = require ("http");
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const Sequelize = require('sequelize');
-const sequelize = new Sequelize({
-  database: 'cs425',
-  username: 'cs425',
-  password: 'cs425',
-  dialect: 'mysql'
-});
-
-const Address = sequelize.import(__dirname + "/models/address.js")
-const Warehouse = sequelize.import(__dirname + "/models/warehouse.js")
-const User = sequelize.import(__dirname + "/models/user.js")
-const Product = sequelize.import(__dirname + "/models/product.js")
-const Category = sequelize.import(__dirname + "/models/category.js")
-const Empassignedtowarehouse = sequelize.import(__dirname + "/models/empassignedtowarehouse.js")
-const Productincategory = sequelize.import(__dirname + "/models/productincategory.js")
-const Userhasaddress = sequelize.import(__dirname + "/models/userhasaddress.js")
-Warehouse.belongsTo(User, { as: 'Manager', foreignKey: 'ManagerID', constraints: false});
-Warehouse.hasOne(Address, { foreignKey: 'AddressID', constraints: false});
-Warehouse.hasMany(Product, { foreignKey: 'ProductID' });
-User.belongsToMany(Address, {through: 'userhasaddress', foreignKey: 'UserId', otherKey: 'AddressID'});
-User.hasMany(Category, { foreignKey: 'CategoryID'});
-User.hasMany(Product, { foreignKey: 'ProductID'});
-User.belongsTo(Warehouse, {foreignKey: 'WarehouseID'})
-Product.belongsToMany(Category, { through: 'productincategory'});
-// Note - those constraints:false are because Users can have Warehouses, but
-// Warehouses can have managers (Users).  It's not smart enough to figure out
-// that it should create one table and then add the constraint, like
-// `create.sql` does, so it'll fail with a cyclic dependency error.
-sequelize.sync().then(function() {
-  console.log("synced");
-});
-
+//
 var mysql = require('mysql');
+
 var con = mysql.createConnection({
 	host: "localhost",
 	user: "cs425",
@@ -100,25 +83,18 @@ app.get('/', (req, res) => {
 });
 
 app.get('/cookies', (req, res) => {
-	res.status(200).send(req.signedCookies).end();
+	var outHead = "Welcome ";
+	if (req.signedCookies['IsAdmin'] === 'true') outHead += '<a href="/administrator">administrator </a>';
+	if (req.signedCookies['IsEmployee'] === 'true') outHead += '<a href="/employee">employee </a>';
+	if (req.signedCookies['IsMerchant'] === 'true') outHead += '<a href="/merchant">merchant </a>';
+	outHead += req.signedCookies['Username'];
+	if (!/null/.test(req.signedCookies['WarehouseID'])) outHead += " with " + '<a href="/warehouse">warehouse </a>' + req.signedCookies['WarehouseID'];
+	res.type ('html');
+	res.status (200);
+	// res.send(req.signedCookies).end();
+	res.send (outHead).end;
 	console.log("Cookies: ", req.signedCookies)
-	console.log("Username: ", req.signedCookies['Username'])
 });
-
-app.get('/cookie2-set', (req,res)=>{
-
-    let options = {
-        maxAge: 1000 * 60 * 5, // would expire after 5 minutes
-        httpOnly: true, // The cookie only accessible by the web server
-        signed: true // Indicates if the cookie should be signed
-    }
-
-    // Set cookie
-    res.cookie('cookieName', 'cookieValue', options) // options is optional
-    res.send('');
-    console.log ("Cookie set done");
-
-})
 
 app.get('/foo', (req, res) => {
    res.status(200).send('Hello, foo!').end();
@@ -133,6 +109,39 @@ app.get('/process_get', function (req, res) {
     console.log(response);
     res.end(JSON.stringify(response));
  })
+
+app.get('/administrator', function (req, res) {
+    con.query('SELECT * from User', function (error, results, fields) {
+		var i;
+		var outPage = ` <table >
+<tr>
+<th>Username</th>
+<th>IsAdmin</th>
+<th>IsEmployee</th>
+<th>IsMerchant</th>
+<th>PhoneNumber</th>
+<th>EmailAddress</th>
+<th>UserID</th>
+<th>WarehouseID</th>
+</tr>\n
+`;
+		res.type ('html');
+		res.status (200);
+
+		for (i = 0; i < results.length; i++) {
+			outPage += "<tr><td>" + results[i].Username + "</td>";
+			outPage += "<td>" + results[i].IsAdmin + "</td>";
+			outPage += "<td>" + results[i].IsEmployee + "</td>";
+			outPage += "<td>" + results[i].IsMerchant + "</td>";
+			outPage += "<td>" + results[i].PhoneNumber + "</td>";
+			outPage += "<td>" + results[i].EmailAddress + "</td>";
+			outPage += "<td>" + results[i].UserID + "</td>";
+			outPage += "<td>" + results[i].Warehouse + "</td></tr>\n";
+		}
+		outPage += "\n</table>\n"
+		res.send (outPage);
+	});
+});
 
 
 app.post('/process_login', urlencodedParser, function (req, res) {
@@ -151,8 +160,9 @@ app.post('/process_login', urlencodedParser, function (req, res) {
     con.query('SELECT * from User where Username = "' + req.body.Username + '"', function (error, results, fields) {
 	  if (error) throw error;
 	  if (results.length === 0) {
-		res.status(400);
-		res.send ("Unknown Name");
+		res.type ('html');
+		res.status (400);
+		res.send ('<a href="login.html">Bad login</a>');
 	} else {
 		console.log(results[0]);
 		// if (results[0].PasswordHash === req.body.password) {
@@ -170,8 +180,7 @@ app.post('/process_login', urlencodedParser, function (req, res) {
 			res.cookie('IsEmployee', results[0].IsEmployee, options);
 			res.cookie('IsMerchant', results[0].IsMerchant, options);
 			res.cookie('WarehouseID', results[0].WarehouseID, options);
-			// res.redirect ("/cookies");
-			res.redirect ("/LICENSE.html");
+			res.redirect ("/cookies");
 		} else {
 			res.status(400);
 			res.send ("Bad Password");
@@ -196,17 +205,7 @@ app.post('/file_upload', upload.single('file-to-upload'), (req, res) => {
 });
 
 
-app.get('/addresses', function(req, res) {
-  // ask a user to select an address from ones they've inputted already.
-  // User.findById(req.signedCookies['UserID']).then(user => {
-  User.findById(1).then(user => {
-    user.getAddresses().then(results => {
-      res.render('show_addresses', {
-        addresses: results
-      });
-    });
-  });
-});
+// app.use(express.static('public'));
 
 
 // Start the server
@@ -215,3 +214,5 @@ var server = app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
 });
+
+// [END app]
