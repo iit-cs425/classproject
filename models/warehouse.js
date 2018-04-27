@@ -23,10 +23,11 @@ module.exports = function(sequelize, DataTypes) {
     ManagerID: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
-      references: {
-        model: 'user',
-        key: 'UserID'
-      }
+    // Can't put this here in the beginning 
+      // references: {
+      //   model: 'user',
+      //   key: 'UserID'
+      // }
     }
   }, {
     tableName: 'warehouse',

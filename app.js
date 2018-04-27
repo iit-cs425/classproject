@@ -44,13 +44,21 @@ const Category = sequelize.import(__dirname + "/models/category.js")
 const Empassignedtowarehouse = sequelize.import(__dirname + "/models/empassignedtowarehouse.js")
 const Productincategory = sequelize.import(__dirname + "/models/productincategory.js")
 const Userhasaddress = sequelize.import(__dirname + "/models/userhasaddress.js")
-Warehouse.hasOne(Address, { foreignKey: 'AddressID' });
-Warehouse.hasOne(User, { as: 'Manager', foreignKey: 'ManagerID' });
+Warehouse.belongsTo(User, { as: 'Manager', foreignKey: 'ManagerID', constraints: false});
+Warehouse.hasOne(Address, { foreignKey: 'AddressID', constraints: false});
 Warehouse.hasMany(Product, { foreignKey: 'ProductID' });
-Address.belongsToMany(User, {through: 'userhasaddress'});
+User.belongsToMany(Address, {through: 'userhasaddress', foreignKey: 'UserId', otherKey: 'AddressID'});
 User.hasMany(Category, { foreignKey: 'CategoryID'});
 User.hasMany(Product, { foreignKey: 'ProductID'});
+User.belongsTo(Warehouse, {foreignKey: 'WarehouseID'})
 Product.belongsToMany(Category, { through: 'productincategory'});
+// Note - those constraints:false are because Users can have Warehouses, but
+// Warehouses can have managers (Users).  It's not smart enough to figure out
+// that it should create one table and then add the constraint, like
+// `create.sql` does, so it'll fail with a cyclic dependency error.
+sequelize.sync().then(function() {
+  console.log("synced");
+});
 
 var mysql = require('mysql');
 var con = mysql.createConnection({
