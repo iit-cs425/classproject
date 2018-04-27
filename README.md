@@ -3,14 +3,14 @@ Class project for cs452
 
 This README contains information about how to build and run this app.  If you come across anything tricky, or just good to know for four people who don't know Node.js, put it in here.
 
-## How is the app organized?
+## App structure
 The app is laid out like [this sample app](https://github.com/GoogleCloudPlatform/nodejs-docs-samples/tree/master/appengine/hello-world).  It contains:
  - `app.js` - the main code
  - `test.js` - the tests
  - `package.json` - metadata like dependencies, and a `scripts` section that tells npm how to run and test the file.
  - `app.yaml` - contains App Engine-specific info.  Maybe this should be deleted.
 
-## How do you install the app?
+## Installation
 
  1. Install required software (already done on the server):
     ```
@@ -40,6 +40,12 @@ The app is laid out like [this sample app](https://github.com/GoogleCloudPlatfor
 	npm install
 	```
 To run the app, make sure you're in the `classproject` directory and run `sudo PORT=80 npm start`.
+
+## Regenerating ORM
+We've chosen to use Sequelize for our ORM, and used a handy tool [sequelize-auto](https://github.com/sequelize/sequelize-auto) to generate Javascript objects from `create.sql`.  If we make a change to the schema, the JS files should be regenerated with
+``` 
+sequelize-auto -o ".\models"  -d cs425 -e mysql -h localhost -u cs425 -x cs425
+```
 
 ## Helpful resources
  - [What are callbacks? How do you write good callback code?](http://callbackhell.com/)
