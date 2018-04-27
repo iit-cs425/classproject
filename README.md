@@ -9,6 +9,8 @@ The app is laid out like [this sample app](https://github.com/GoogleCloudPlatfor
  - `test.js` - the tests
  - `package.json` - metadata like dependencies, and a `scripts` section that tells npm how to run and test the file.
  - `app.yaml` - contains App Engine-specific info.  Maybe this should be deleted.
+ - `/models` - objects that represent database tables
+ - `/views` - [`pug`](https://pugjs.org/api/getting-started.html) templates that get turned into HTML
 
 ## Installation
 
