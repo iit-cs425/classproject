@@ -22,15 +22,37 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const multer  = require('multer');
 const upload = multer({
 	  dest: 'uploads/' // this saves your file into a directory called "uploads"
-}); 
+});
 
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//
-var mysql = require('mysql');
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize({
+  database: 'cs425',
+  username: 'cs425',
+  password: 'cs425',
+  dialect: 'mysql'
+});
 
+const Address = sequelize.import(__dirname + "/models/address.js")
+const Warehouse = sequelize.import(__dirname + "/models/warehouse.js")
+const User = sequelize.import(__dirname + "/models/user.js")
+const Product = sequelize.import(__dirname + "/models/product.js")
+const Category = sequelize.import(__dirname + "/models/category.js")
+const Empassignedtowarehouse = sequelize.import(__dirname + "/models/empassignedtowarehouse.js")
+const Productincategory = sequelize.import(__dirname + "/models/productincategory.js")
+const Userhasaddress = sequelize.import(__dirname + "/models/userhasaddress.js")
+Warehouse.hasOne(Address, { foreignKey: 'AddressID' });
+Warehouse.hasOne(User, { as: 'Manager', foreignKey: 'ManagerID' });
+Warehouse.hasMany(Product, { foreignKey: 'ProductID' });
+Address.belongsToMany(User, {through: 'userhasaddress'});
+User.hasMany(Category, { foreignKey: 'CategoryID'});
+User.hasMany(Product, { foreignKey: 'ProductID'});
+Product.belongsToMany(Category, { through: 'productincategory'});
+
+var mysql = require('mysql');
 var con = mysql.createConnection({
 	host: "localhost",
 	user: "cs425",
