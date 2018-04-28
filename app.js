@@ -185,27 +185,29 @@ app.post('/process_login', urlencodedParser, function (req, res) {
 		res.status (400);
 		res.send ('<a href="login.html">Bad login</a>');
 	} else {
-		console.log(results[0]);
-		// if (results[0].PasswordHash === req.body.password) {
-		if (true) {
-			console.log ("Password Match");
-			let options = {
-				maxAge: 1000 * 60 * 5, // would expire after 5 minutes
-				httpOnly: true, // The cookie only accessible by the web server
-				signed: true // Indicates if the cookie should be signed
-			}
+    bcrypt.compare(req.body.password, results[0].PasswordHash).then(passOK => {
+      if (passOK) {
+        console.log ("Password Match");
+        let options = {
+          maxAge: 1000 * 60 * 15, // Cookies expire after 15 minutes
+          httpOnly: true, // The cookie only accessible by the web server
+          signed: true // Indicates if the cookie should be signed
+        }
 
-			res.cookie('Username', req.body.Username, options);
-			res.cookie('UserID', results[0].UserID, options);
-			res.cookie('IsAdmin', results[0].IsAdmin, options);
-			res.cookie('IsEmployee', results[0].IsEmployee, options);
-			res.cookie('IsMerchant', results[0].IsMerchant, options);
-			res.cookie('WarehouseID', results[0].WarehouseID, options);
-			res.redirect ("/cookies");
-		} else {
-			res.status(400);
-			res.send ("Bad Password");
-		}
+        res.cookie('Username', req.body.Username, options);
+        res.cookie('UserID', results[0].UserID, options);
+        res.cookie('IsAdmin', results[0].IsAdmin, options);
+        res.cookie('IsEmployee', results[0].IsEmployee, options);
+        res.cookie('IsMerchant', results[0].IsMerchant, options);
+        res.cookie('WarehouseID', results[0].WarehouseID, options);
+        res.redirect ("/cookies");
+      } else {
+        res.status(400);
+        res.send ("Bad Password");
+      }
+    });
+    // res == true
+
 	}
 })
 })
@@ -313,6 +315,31 @@ app.post('/edit_address/', urlencodedParser, function(req, res) {
 
 app.get('/change_password', function(req, res) {
   res.render('change_password');
+});
+
+app.post('/change_password', urlencodedParser, function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    if (false) {  // password is incorrect?
+      res.send("incorrect password");
+    }
+    if (req.body['password1'] !== req.body['password2']) {
+      res.send("passwords didn't match");
+    }
+    if (false) { // if password doesn't meet complexity rules
+      res.send("not up-to-par")
+    }
+    bcrypt.genSalt(10).then(salt => {
+      return bcrypt.hash(req.body['password1'], salt);
+    }).then(hash => {
+      console.log(hash);
+      return user.update({ PasswordHash: hash });
+    }).then(result => {
+      res.send("Password changed.");
+    }).catch((error) => {
+      console.log(error);
+      res.send("It didn't work");
+    });
+  });
 });
 
 // Start the server
