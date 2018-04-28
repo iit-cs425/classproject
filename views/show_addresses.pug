@@ -27,11 +27,18 @@ html(lang="en")
             tr
                 td City
                 td #{address.get().City}
+            tr
+                td
+                    form(action="/edit_address/"+address.get().AddressID)
+                        input(type="submit", value="Edit")
+                td
+                    form(action="/del_address/"+address.get().AddressID)
+                        input(type="submit", value="Delete")
         br
     else
         p You don't have any addresses!
-
-
+    form(action="/new_address")
+        input(type="submit", value="Add New")
 
 //- ContactName VARCHAR(64) NOT NULL,
 //- CompanyName VARCHAR(64),
