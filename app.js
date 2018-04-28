@@ -253,6 +253,10 @@ app.get('/del_address/:AddressID', function(req, res) {
   });
 });
 
+app.get('/new_address/', function(req, res) {
+  res.render('new_address');
+});
+
 
 // Start the server
 const PORT = process.env.PORT || 80;
