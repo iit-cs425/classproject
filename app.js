@@ -13,7 +13,7 @@ const path = require('path');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-
+const bcrypt = require('bcrypt');
 const fs = require("fs");
 
 const bodyParser = require('body-parser');
