@@ -227,9 +227,8 @@ app.post('/file_upload', upload.single('file-to-upload'), (req, res) => {
 
 
 app.get('/addresses', function(req, res) {
-  // ask a user to select an address from ones they've inputted already.
-  // User.findById(req.signedCookies['UserID']).then(user => {
-  User.findById(1).then(user => {
+  // Show the user's entered addresses, with buttons to add or change them.
+  User.findById(req.signedCookies['UserID']).then(user => {
     user.getAddresses().then(results => {
       res.render('show_addresses', {
         addresses: results
