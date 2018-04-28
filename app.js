@@ -257,6 +257,26 @@ app.get('/new_address/', function(req, res) {
   res.render('new_address');
 });
 
+app.post('/new_address/', urlencodedParser, function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    Address.create({
+        ContactName: req.body.ContactName,
+        CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
+        District: req.body.District ? req.body.District : null,
+        Province_State: req.body.Province_State,
+        Nation: req.body.Nation,
+        PostalCode: req.body.PostalCode,
+        City: req.body.City
+      }).then(address => {
+        user.addAddress(address);
+        res.redirect("/addresses");
+      }).catch(error => { // couldn't find address
+        res.send(error);
+      });
+  }).catch(error => { // couldn't find user
+    res.send(error);
+  });
+});
 
 // Start the server
 const PORT = process.env.PORT || 80;
