@@ -48,7 +48,7 @@ const Userhasaddress = sequelize.import(__dirname + "/models/userhasaddress.js")
 Warehouse.belongsTo(User, { as: 'Manager', foreignKey: 'ManagerID', constraints: false});
 Warehouse.hasOne(Address, { foreignKey: 'AddressID', constraints: false});
 Warehouse.hasMany(Product, { foreignKey: 'ProductID' });
-User.belongsToMany(Address, {through: 'userhasaddress', foreignKey: 'UserId', otherKey: 'AddressID'});
+User.belongsToMany(Address, {through: 'userhasaddress', foreignKey: 'UserID', otherKey: 'AddressID'});
 User.hasMany(Category, { foreignKey: 'CategoryID'});
 User.hasMany(Product, { foreignKey: 'ProductID'});
 User.belongsTo(Warehouse, {foreignKey: 'WarehouseID'})
