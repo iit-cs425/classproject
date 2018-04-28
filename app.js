@@ -169,7 +169,7 @@ app.post('/process_login', urlencodedParser, function (req, res) {
    // Prepare output in JSON format
    console.log(req.body);
 
-    let nameRE = RegExp ("^[-a-z0-9_']{1,32}$");
+    let nameRE = RegExp ("^[-a-z0-9_'\.]{1,32}$");
 
     if (!nameRE.test(req.body.Username)) {
 	res.status(400);
