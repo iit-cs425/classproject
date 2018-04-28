@@ -206,8 +206,6 @@ app.post('/process_login', urlencodedParser, function (req, res) {
         res.send ("Bad Password");
       }
     });
-    // res == true
-
 	}
 })
 })
@@ -261,25 +259,24 @@ app.get('/new_address/', function(req, res) {
 
 app.post('/new_address/', urlencodedParser, function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
-    Address.create({
-        ContactName: req.body.ContactName,
-        CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
-        District: req.body.District ? req.body.District : null,
-        Province_State: req.body.Province_State,
-        Nation: req.body.Nation,
-        PostalCode: req.body.PostalCode,
-        City: req.body.City
-      }).then(address => {
-        user.addAddress(address);
-        res.redirect("/addresses");
-      }).catch(error => { // couldn't find address
-        res.send(error);
+    return Address.create({
+      ContactName: req.body.ContactName,
+      CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
+      District: req.body.District ? req.body.District : null,
+      Province_State: req.body.Province_State,
+      Nation: req.body.Nation,
+      PostalCode: req.body.PostalCode,
+      City: req.body.City
       });
-  }).catch(error => { // couldn't find user
+  }).then(address => {
+    user.addAddress(address);
+    res.redirect("/addresses");
+  }).catch(error => {
     res.send(error);
   });
 });
 
+// TODO: make sure user owns address
 app.get('/edit_address/:AddressID', function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
     Address.findById(req.params['AddressID']).then(address => {
@@ -290,26 +287,23 @@ app.get('/edit_address/:AddressID', function(req, res) {
   });
 });
 
+// TODO: make sure user owns address
 app.post('/edit_address/', urlencodedParser, function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
-    Address.findById(req.body.AddressID).then(address => {
-      address.update({
-        ContactName: req.body.ContactName,
-        CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
-        District: req.body.District ? req.body.District : null,
-        Province_State: req.body.Province_State,
-        Nation: req.body.Nation,
-        PostalCode: req.body.PostalCode,
-        City: req.body.City}).then(() => {
-          res.redirect("/addresses");
-        }).catch(error => {
-          res.send("couldn't update address");
-        });
-    }).catch(error => {
-      res.send("couldn't find address");
-    });
+    return Address.findById(req.body.AddressID);
+  }).then(address => {
+    return address.update({
+      ContactName: req.body.ContactName,
+      CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
+      District: req.body.District ? req.body.District : null,
+      Province_State: req.body.Province_State,
+      Nation: req.body.Nation,
+      PostalCode: req.body.PostalCode,
+      City: req.body.City});
+  }).then(() => {
+    res.redirect("/addresses");
   }).catch(error => {
-    res.send("couldn't find user");
+    res.send("something went wrong");
   });
 });
 
