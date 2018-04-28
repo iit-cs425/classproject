@@ -24,6 +24,7 @@ const upload = multer({
 	  dest: 'uploads/' // this saves your file into a directory called "uploads"
 });
 
+const http = require ("http");
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -100,25 +101,18 @@ app.get('/', (req, res) => {
 });
 
 app.get('/cookies', (req, res) => {
-	res.status(200).send(req.signedCookies).end();
+	var outHead = "Welcome ";
+	if (req.signedCookies['IsAdmin'] === 'true') outHead += '<a href="/administrator">administrator </a>';
+	if (req.signedCookies['IsEmployee'] === 'true') outHead += '<a href="/employee">employee </a>';
+	if (req.signedCookies['IsMerchant'] === 'true') outHead += '<a href="/merchant">merchant </a>';
+	outHead += req.signedCookies['Username'];
+	if (!/null/.test(req.signedCookies['WarehouseID'])) outHead += " with " + '<a href="/warehouse">warehouse </a>' + req.signedCookies['WarehouseID'];
+	res.type ('html');
+	res.status (200);
+	// res.send(req.signedCookies).end();
+	res.send (outHead).end;
 	console.log("Cookies: ", req.signedCookies)
-	console.log("Username: ", req.signedCookies['Username'])
 });
-
-app.get('/cookie2-set', (req,res)=>{
-
-    let options = {
-        maxAge: 1000 * 60 * 5, // would expire after 5 minutes
-        httpOnly: true, // The cookie only accessible by the web server
-        signed: true // Indicates if the cookie should be signed
-    }
-
-    // Set cookie
-    res.cookie('cookieName', 'cookieValue', options) // options is optional
-    res.send('');
-    console.log ("Cookie set done");
-
-})
 
 app.get('/foo', (req, res) => {
    res.status(200).send('Hello, foo!').end();
@@ -133,6 +127,39 @@ app.get('/process_get', function (req, res) {
     console.log(response);
     res.end(JSON.stringify(response));
  })
+
+app.get('/administrator', function (req, res) {
+    con.query('SELECT * from User', function (error, results, fields) {
+		var i;
+		var outPage = ` <table >
+<tr>
+<th>Username</th>
+<th>IsAdmin</th>
+<th>IsEmployee</th>
+<th>IsMerchant</th>
+<th>PhoneNumber</th>
+<th>EmailAddress</th>
+<th>UserID</th>
+<th>WarehouseID</th>
+</tr>\n
+`;
+		res.type ('html');
+		res.status (200);
+
+		for (i = 0; i < results.length; i++) {
+			outPage += "<tr><td>" + results[i].Username + "</td>";
+			outPage += "<td>" + results[i].IsAdmin + "</td>";
+			outPage += "<td>" + results[i].IsEmployee + "</td>";
+			outPage += "<td>" + results[i].IsMerchant + "</td>";
+			outPage += "<td>" + results[i].PhoneNumber + "</td>";
+			outPage += "<td>" + results[i].EmailAddress + "</td>";
+			outPage += "<td>" + results[i].UserID + "</td>";
+			outPage += "<td>" + results[i].Warehouse + "</td></tr>\n";
+		}
+		outPage += "\n</table>\n"
+		res.send (outPage);
+	});
+});
 
 
 app.post('/process_login', urlencodedParser, function (req, res) {
@@ -151,8 +178,9 @@ app.post('/process_login', urlencodedParser, function (req, res) {
     con.query('SELECT * from User where Username = "' + req.body.Username + '"', function (error, results, fields) {
 	  if (error) throw error;
 	  if (results.length === 0) {
-		res.status(400);
-		res.send ("Unknown Name");
+		res.type ('html');
+		res.status (400);
+		res.send ('<a href="login.html">Bad login</a>');
 	} else {
 		console.log(results[0]);
 		// if (results[0].PasswordHash === req.body.password) {
@@ -170,8 +198,7 @@ app.post('/process_login', urlencodedParser, function (req, res) {
 			res.cookie('IsEmployee', results[0].IsEmployee, options);
 			res.cookie('IsMerchant', results[0].IsMerchant, options);
 			res.cookie('WarehouseID', results[0].WarehouseID, options);
-			// res.redirect ("/cookies");
-			res.redirect ("/LICENSE.html");
+			res.redirect ("/cookies");
 		} else {
 			res.status(400);
 			res.send ("Bad Password");
