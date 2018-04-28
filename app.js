@@ -333,27 +333,31 @@ app.get('/change_password', function(req, res) {
  */
 app.post('/change_password', urlencodedParser, function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
-    if (false) {  // password is incorrect?
-      res.send("incorrect password");
-    }
-    if (req.body['password1'] !== req.body['password2']) {
-      res.send("passwords didn't match");
-    }
-    if (false) { // if password doesn't meet complexity rules
-      res.send("not up-to-par")
-    }
-    bcrypt.genSalt(10).then(salt => {
+    bcrypt.compare(req.body['oldPassword'], user.PasswordHash).then(passOK => {
+      if (!passOK) {  // password is incorrect?
+        res.send("incorrect password");
+      }
+      if (req.body['password1'] !== req.body['password2']) {
+        res.send("passwords didn't match");
+      }
+      if (false) { // if password doesn't meet complexity rules
+        res.send("not up-to-par")
+      }
+      return bcrypt.genSalt(10);
+    }).then(salt => {
       return bcrypt.hash(req.body['password1'], salt);
     }).then(hash => {
       console.log(hash);
       return user.update({ PasswordHash: hash });
     }).then(result => {
       res.send("Password changed.");
-    }).catch((error) => {
+    }).catch(error => {
       console.log(error);
       res.send("It didn't work");
     });
-  });
+  }).catch(error => {
+    res.send("Couldn't find your user.  Are you logged in?")
+  })
 });
 
 // Start the server
