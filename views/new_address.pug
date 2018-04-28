@@ -1,0 +1,37 @@
+doctype html
+html(lang="en")
+  head
+    title= "New Address"
+  body
+    h1 Add a new address
+    form(action="/new_address/",method="POST")
+        table(border=1)
+            tr
+                td Contact name
+                td
+                    input(type="text",name="ContactName")
+            tr
+                td Company name
+                td
+                    input(type="text",name="CompanyName")
+            tr
+                td District
+                td
+                    input(type="text",name="District")
+            tr
+                td Province / state
+                td
+                    input(type="text",name="Province_State")
+            tr
+                td Nation
+                td
+                    input(type="text",name="Nation")
+            tr
+                td Postal code
+                td
+                    input(type="text",name="PostalCode")
+            tr
+                td City
+                td
+                    input(type="text",name="City")
+        input(type="submit", value="Submit")

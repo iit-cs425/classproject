@@ -1,0 +1,38 @@
+doctype html
+html(lang="en")
+  head
+    title= "Edit  Address"
+  body
+    h1 Edit this address
+    form(action="/edit_address/",method="POST")
+        input(name="AddressID",value=address.AddressID,type="hidden")
+        table(border=1)
+            tr
+                td Contact name
+                td
+                    input(type="text",name="ContactName",value=address.ContactName)
+            tr
+                td Company name
+                td
+                    input(type="text",name="CompanyName",value=address.CompanyName)
+            tr
+                td District
+                td
+                    input(type="text",name="District",value=address.District)
+            tr
+                td Province / state
+                td
+                    input(type="text",name="Province_State",value=address.Province_State)
+            tr
+                td Nation
+                td
+                    input(type="text",name="Nation",value=address.Nation)
+            tr
+                td Postal code
+                td
+                    input(type="text",name="PostalCode",value=address.PostalCode)
+            tr
+                td City
+                td
+                    input(type="text",name="City",value=address.City)
+        input(type="submit", value="Submit")

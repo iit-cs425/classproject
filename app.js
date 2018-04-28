@@ -48,7 +48,7 @@ const Userhasaddress = sequelize.import(__dirname + "/models/userhasaddress.js")
 Warehouse.belongsTo(User, { as: 'Manager', foreignKey: 'ManagerID', constraints: false});
 Warehouse.hasOne(Address, { foreignKey: 'AddressID', constraints: false});
 Warehouse.hasMany(Product, { foreignKey: 'ProductID' });
-User.belongsToMany(Address, {through: 'userhasaddress', foreignKey: 'UserId', otherKey: 'AddressID'});
+User.belongsToMany(Address, {through: 'userhasaddress', foreignKey: 'UserID', otherKey: 'AddressID'});
 User.hasMany(Category, { foreignKey: 'CategoryID'});
 User.hasMany(Product, { foreignKey: 'ProductID'});
 User.belongsTo(Warehouse, {foreignKey: 'WarehouseID'})
@@ -57,9 +57,9 @@ Product.belongsToMany(Category, { through: 'productincategory'});
 // Warehouses can have managers (Users).  It's not smart enough to figure out
 // that it should create one table and then add the constraint, like
 // `create.sql` does, so it'll fail with a cyclic dependency error.
-sequelize.sync().then(function() {
-  console.log("synced");
-});
+// sequelize.sync().then(function() {
+//   console.log("synced");
+// });
 
 var mysql = require('mysql');
 var con = mysql.createConnection({
@@ -161,12 +161,15 @@ app.get('/administrator', function (req, res) {
 	});
 });
 
+app.get('/login', function(req, res) {
+  res.render('login')
+});
 
 app.post('/process_login', urlencodedParser, function (req, res) {
    // Prepare output in JSON format
    console.log(req.body);
 
-    let nameRE = RegExp ("^[-a-z0-9_']{1,32}$");
+    let nameRE = RegExp ("^[-a-z0-9_'\.]{1,32}$");
 
     if (!nameRE.test(req.body.Username)) {
 	res.status(400);
@@ -224,9 +227,8 @@ app.post('/file_upload', upload.single('file-to-upload'), (req, res) => {
 
 
 app.get('/addresses', function(req, res) {
-  // ask a user to select an address from ones they've inputted already.
-  // User.findById(req.signedCookies['UserID']).then(user => {
-  User.findById(1).then(user => {
+  // Show the user's entered addresses, with buttons to add or change them.
+  User.findById(req.signedCookies['UserID']).then(user => {
     user.getAddresses().then(results => {
       res.render('show_addresses', {
         addresses: results
@@ -235,6 +237,79 @@ app.get('/addresses', function(req, res) {
   });
 });
 
+/**
+ * Delete an address given by AddressID, if it belongs to the signed-in user.
+ */
+app.get('/del_address/:AddressID', function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    if (user === null) {
+      res.status(400);
+      res.send("User not found! Try logging in again.");
+    } else {
+      user.removeAddress(req.params['AddressID']).then(results => {
+        res.send("Address was deleted.")
+      });
+    }
+  });
+});
+
+app.get('/new_address/', function(req, res) {
+  res.render('new_address');
+});
+
+app.post('/new_address/', urlencodedParser, function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    Address.create({
+        ContactName: req.body.ContactName,
+        CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
+        District: req.body.District ? req.body.District : null,
+        Province_State: req.body.Province_State,
+        Nation: req.body.Nation,
+        PostalCode: req.body.PostalCode,
+        City: req.body.City
+      }).then(address => {
+        user.addAddress(address);
+        res.redirect("/addresses");
+      }).catch(error => { // couldn't find address
+        res.send(error);
+      });
+  }).catch(error => { // couldn't find user
+    res.send(error);
+  });
+});
+
+app.get('/edit_address/:AddressID', function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    Address.findById(req.params['AddressID']).then(address => {
+      res.render('edit_address', {
+        address: address.get()
+      });
+    });
+  });
+});
+
+app.post('/edit_address/', urlencodedParser, function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    Address.findById(req.body.AddressID).then(address => {
+      address.update({
+        ContactName: req.body.ContactName,
+        CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
+        District: req.body.District ? req.body.District : null,
+        Province_State: req.body.Province_State,
+        Nation: req.body.Nation,
+        PostalCode: req.body.PostalCode,
+        City: req.body.City}).then(() => {
+          res.redirect("/addresses");
+        }).catch(error => {
+          res.send("couldn't update address");
+        });
+    }).catch(error => {
+      res.send("couldn't find address");
+    });
+  }).catch(error => {
+    res.send("couldn't find user");
+  });
+});
 
 // Start the server
 const PORT = process.env.PORT || 80;
