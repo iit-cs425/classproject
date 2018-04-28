@@ -1,21 +1,5 @@
-/**
- * Copyright 2017, Google, Inc.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 'use strict';
 
-// [START app]
 console.log( __filename );
 
 const express = require('express');
@@ -24,8 +8,12 @@ const app = express();
 const cookieParser = require('cookie-parser');
 app.use(cookieParser("cs425"));
 
+// Set up Pug view engine to render things in /views
+const path = require('path');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
 
-//
+
 const fs = require("fs");
 
 const bodyParser = require('body-parser');
@@ -34,16 +22,46 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const multer  = require('multer');
 const upload = multer({
 	  dest: 'uploads/' // this saves your file into a directory called "uploads"
-}); 
+});
 
 const http = require ("http");
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//
-var mysql = require('mysql');
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize({
+  database: 'cs425',
+  username: 'cs425',
+  password: 'cs425',
+  dialect: 'mysql'
+});
 
+const Address = sequelize.import(__dirname + "/models/address.js")
+const Warehouse = sequelize.import(__dirname + "/models/warehouse.js")
+const User = sequelize.import(__dirname + "/models/user.js")
+const Product = sequelize.import(__dirname + "/models/product.js")
+const Category = sequelize.import(__dirname + "/models/category.js")
+const Empassignedtowarehouse = sequelize.import(__dirname + "/models/empassignedtowarehouse.js")
+const Productincategory = sequelize.import(__dirname + "/models/productincategory.js")
+const Userhasaddress = sequelize.import(__dirname + "/models/userhasaddress.js")
+Warehouse.belongsTo(User, { as: 'Manager', foreignKey: 'ManagerID', constraints: false});
+Warehouse.hasOne(Address, { foreignKey: 'AddressID', constraints: false});
+Warehouse.hasMany(Product, { foreignKey: 'ProductID' });
+User.belongsToMany(Address, {through: 'userhasaddress', foreignKey: 'UserId', otherKey: 'AddressID'});
+User.hasMany(Category, { foreignKey: 'CategoryID'});
+User.hasMany(Product, { foreignKey: 'ProductID'});
+User.belongsTo(Warehouse, {foreignKey: 'WarehouseID'})
+Product.belongsToMany(Category, { through: 'productincategory'});
+// Note - those constraints:false are because Users can have Warehouses, but
+// Warehouses can have managers (Users).  It's not smart enough to figure out
+// that it should create one table and then add the constraint, like
+// `create.sql` does, so it'll fail with a cyclic dependency error.
+sequelize.sync().then(function() {
+  console.log("synced");
+});
+
+var mysql = require('mysql');
 var con = mysql.createConnection({
 	host: "localhost",
 	user: "cs425",
@@ -205,7 +223,17 @@ app.post('/file_upload', upload.single('file-to-upload'), (req, res) => {
 });
 
 
-// app.use(express.static('public'));
+app.get('/addresses', function(req, res) {
+  // ask a user to select an address from ones they've inputted already.
+  // User.findById(req.signedCookies['UserID']).then(user => {
+  User.findById(1).then(user => {
+    user.getAddresses().then(results => {
+      res.render('show_addresses', {
+        addresses: results
+      });
+    });
+  });
+});
 
 
 // Start the server
@@ -214,5 +242,3 @@ var server = app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
 });
-
-// [END app]
