@@ -25,7 +25,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     }
   }, {
-    tableName: 'userhasaddress',
+    tableName: 'UserHasAddress',
     timestamps: false
   });
 };

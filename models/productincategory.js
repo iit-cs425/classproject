@@ -25,7 +25,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     }
   }, {
-    tableName: 'productincategory',
+    tableName: 'ProductInCategory',
     timestamps: false
   });
 };

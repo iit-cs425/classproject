@@ -69,7 +69,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     }
   }, {
-    tableName: 'product',
+    tableName: 'Product',
     timestamps: false
   });
 };

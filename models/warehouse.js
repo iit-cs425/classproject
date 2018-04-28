@@ -30,7 +30,7 @@ module.exports = function(sequelize, DataTypes) {
       // }
     }
   }, {
-    tableName: 'warehouse',
+    tableName: 'Warehouse',
     timestamps: false
   });
 };
