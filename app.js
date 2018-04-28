@@ -265,7 +265,7 @@ app.get('/new_address/', function(req, res) {
  */
 app.post('/new_address/', urlencodedParser, function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
-    return Address.create({
+    Address.create({
       ContactName: req.body.ContactName,
       CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
       District: req.body.District ? req.body.District : null,
@@ -273,10 +273,12 @@ app.post('/new_address/', urlencodedParser, function(req, res) {
       Nation: req.body.Nation,
       PostalCode: req.body.PostalCode,
       City: req.body.City
-      });
-  }).then(address => {
-    user.addAddress(address);
-    res.redirect("/addresses");
+    }).then(address => {
+      user.addAddress(address);
+      res.redirect("/addresses");
+    }).catch(error => {
+      res.send(error);
+    });
   }).catch(error => {
     res.send(error);
   });
