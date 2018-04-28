@@ -55,7 +55,7 @@ module.exports = function(sequelize, DataTypes) {
       autoIncrement: true
     }
   }, {
-    tableName: 'address',
+    tableName: 'Address',
     timestamps: false
   });
 };

@@ -25,7 +25,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     }
   }, {
-    tableName: 'empassignedtowarehouse',
+    tableName: 'EmpAssignedToWarehouse',
     timestamps: false
   });
 };
