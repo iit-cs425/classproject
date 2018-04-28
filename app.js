@@ -13,7 +13,7 @@ const path = require('path');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-
+const bcrypt = require('bcrypt');
 const fs = require("fs");
 
 const bodyParser = require('body-parser');
@@ -185,27 +185,27 @@ app.post('/process_login', urlencodedParser, function (req, res) {
 		res.status (400);
 		res.send ('<a href="login.html">Bad login</a>');
 	} else {
-		console.log(results[0]);
-		// if (results[0].PasswordHash === req.body.password) {
-		if (true) {
-			console.log ("Password Match");
-			let options = {
-				maxAge: 1000 * 60 * 5, // would expire after 5 minutes
-				httpOnly: true, // The cookie only accessible by the web server
-				signed: true // Indicates if the cookie should be signed
-			}
+    bcrypt.compare(req.body.password, results[0].Password).then(passOK => {
+      if (passOK) {
+        console.log ("Password Match");
+        let options = {
+          maxAge: 1000 * 60 * 15, // Cookies expire after 15 minutes
+          httpOnly: true, // The cookie only accessible by the web server
+          signed: true // Indicates if the cookie should be signed
+        }
 
-			res.cookie('Username', req.body.Username, options);
-			res.cookie('UserID', results[0].UserID, options);
-			res.cookie('IsAdmin', results[0].IsAdmin, options);
-			res.cookie('IsEmployee', results[0].IsEmployee, options);
-			res.cookie('IsMerchant', results[0].IsMerchant, options);
-			res.cookie('WarehouseID', results[0].WarehouseID, options);
-			res.redirect ("/cookies");
-		} else {
-			res.status(400);
-			res.send ("Bad Password");
-		}
+        res.cookie('Username', req.body.Username, options);
+        res.cookie('UserID', results[0].UserID, options);
+        res.cookie('IsAdmin', results[0].IsAdmin, options);
+        res.cookie('IsEmployee', results[0].IsEmployee, options);
+        res.cookie('IsMerchant', results[0].IsMerchant, options);
+        res.cookie('WarehouseID', results[0].WarehouseID, options);
+        res.redirect ("/cookies");
+      } else {
+        res.status(400);
+        res.send ("Bad Password");
+      }
+    });
 	}
 })
 })
@@ -253,31 +253,39 @@ app.get('/del_address/:AddressID', function(req, res) {
   });
 });
 
+/**
+ * Prompt user to enter a new address.
+ */
 app.get('/new_address/', function(req, res) {
   res.render('new_address');
 });
 
+/**
+ * Save a new address entered by the user.
+ */
 app.post('/new_address/', urlencodedParser, function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
-    Address.create({
-        ContactName: req.body.ContactName,
-        CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
-        District: req.body.District ? req.body.District : null,
-        Province_State: req.body.Province_State,
-        Nation: req.body.Nation,
-        PostalCode: req.body.PostalCode,
-        City: req.body.City
-      }).then(address => {
-        user.addAddress(address);
-        res.redirect("/addresses");
-      }).catch(error => { // couldn't find address
-        res.send(error);
+    return Address.create({
+      ContactName: req.body.ContactName,
+      CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
+      District: req.body.District ? req.body.District : null,
+      Province_State: req.body.Province_State,
+      Nation: req.body.Nation,
+      PostalCode: req.body.PostalCode,
+      City: req.body.City
       });
-  }).catch(error => { // couldn't find user
+  }).then(address => {
+    user.addAddress(address);
+    res.redirect("/addresses");
+  }).catch(error => {
     res.send(error);
   });
 });
 
+// TODO: make sure user owns address
+/**
+ * Prompt user to edit an address given by AddressID.
+ */
 app.get('/edit_address/:AddressID', function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
     Address.findById(req.params['AddressID']).then(address => {
@@ -288,27 +296,68 @@ app.get('/edit_address/:AddressID', function(req, res) {
   });
 });
 
+// TODO: make sure user owns address
+/**
+ * Edit an address owned by the user.
+ */
 app.post('/edit_address/', urlencodedParser, function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
-    Address.findById(req.body.AddressID).then(address => {
-      address.update({
-        ContactName: req.body.ContactName,
-        CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
-        District: req.body.District ? req.body.District : null,
-        Province_State: req.body.Province_State,
-        Nation: req.body.Nation,
-        PostalCode: req.body.PostalCode,
-        City: req.body.City}).then(() => {
-          res.redirect("/addresses");
-        }).catch(error => {
-          res.send("couldn't update address");
-        });
+    return Address.findById(req.body.AddressID);
+  }).then(address => {
+    return address.update({
+      ContactName: req.body.ContactName,
+      CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
+      District: req.body.District ? req.body.District : null,
+      Province_State: req.body.Province_State,
+      Nation: req.body.Nation,
+      PostalCode: req.body.PostalCode,
+      City: req.body.City});
+  }).then(() => {
+    res.redirect("/addresses");
+  }).catch(error => {
+    res.send("something went wrong");
+  });
+});
+
+/**
+ * Prompt user to change their password.
+ */
+app.get('/change_password', function(req, res) {
+  res.render('change_password');
+});
+
+/**
+ * Process a user's request to change their password.  If they authenticate,
+ * their password was entered without typos, and wasn't terrible, update the
+ * database with the hashed password + salt.
+ */
+app.post('/change_password', urlencodedParser, function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    bcrypt.compare(req.body['oldPassword'], user.Password).then(passOK => {
+      if (!passOK) {
+        res.send("incorrect password");
+      }
+      if (req.body['password1'] !== req.body['password2']) {
+        res.send("passwords didn't match");
+      }
+      const newPass = req.body['password1'];
+      if (false) { // TODO: can't begin or end with whitespace; >=8 chars, printable ASCII only
+        res.send("not up-to-par")
+      }
+      return bcrypt.genSalt(10);
+    }).then(salt => {
+      return bcrypt.hash(req.body['password1'], salt);
+    }).then(hash => {
+      return user.update({ Password: hash });
+    }).then(result => {
+      res.send("Password changed.");
     }).catch(error => {
-      res.send("couldn't find address");
+      console.log(error);
+      res.send("It didn't work");
     });
   }).catch(error => {
-    res.send("couldn't find user");
-  });
+    res.send("Couldn't find your user.  Are you logged in?")
+  })
 });
 
 // Start the server

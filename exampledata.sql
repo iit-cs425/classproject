@@ -20,14 +20,14 @@ VALUES
 ('Mr. Grande',         NULL,       NULL,        'Rio de Janeiro','Brazil'    ,'20000-000','Rio de Janeiro',10);
 
 INSERT INTO User
-(Username, IsAdmin, IsEmployee, IsMerchant, PasswordHash, PhoneNumber, EmailAddress, UserID, PasswordSalt, WarehouseID)
+(Username, IsAdmin, IsEmployee, IsMerchant, PhoneNumber, EmailAddress, UserID, WarehouseID, Password)
 VALUES
-('root',   1, 0, 0, 'examplehash', '1-234-567-8910', 'root@example.com',             1, 'examplesalt', NULL),
-('emp1',   0, 1, 0, 'passhash',    '123456789',      'emp1@example.com',             2, 'examplesalt', NULL),
-('man1',   0, 1, 0, 'passhash',    '123456789',      'man1@example.com',             3, 'examplesalt', NULL),
-('merch1', 0, 0, 1, 'passhash',    '123456789',      'merch1@example.com',           4, 'examplesalt', NULL),
-('dave',   0, 0, 1, 'tech4iit',    '2125551212',     'davidscheibelhut@hawk.iit.edu',5, 'filler',      NULL),
-('fred',   0, 1, 0, 'fred',        '411',            'root@google.com',              6, 'na',          NULL);
+('root',   1, 0, 0, '1-234-567-8910', 'root@example.com',             1, NULL, '$2b$10$E3fm7Nm63gstlqY1Ebj4OuhuesikcqRZqOCIo8QHqUUb3xVqZIR9a'), -- password: insecure
+('emp1',   0, 1, 0, '123456789',      'emp1@example.com',             2, NULL, '$2b$10$QCiJnWyL/emv8Y6k3l6qGOeBOWKJBQPGb3wMwqLbd0R.uMGWFLdJe'), -- password: emp1
+('man1',   0, 1, 0, '123456789',      'man1@example.com',             3, NULL, '$2b$10$4qQwF7J10tLUjg6SoL1dy.Mf6mZLpDq2jtvMC6OSgulz.CGTXwcEe'), -- password: man1
+('merch1', 0, 0, 1, '123456789',      'merch1@example.com',           4, NULL, '$2b$10$E3fm7Nm63gstlqY1Ebj4OuhuesikcqRZqOCIo8QHqUUb3xVqZIR9a'), -- password: insecure
+('dave',   0, 0, 1, '2125551212',     'davidscheibelhut@hawk.iit.edu',5, NULL, '$2b$10$E3fm7Nm63gstlqY1Ebj4OuhuesikcqRZqOCIo8QHqUUb3xVqZIR9a'), -- password: insecure
+('fred',   0, 1, 0, '411',            'root@google.com',              6, NULL, '$2b$10$E3fm7Nm63gstlqY1Ebj4OuhuesikcqRZqOCIo8QHqUUb3xVqZIR9a'); -- password: insecure
 
 INSERT INTO UserHasAddress
 (UserHasAddressID, AddressID, UserID)

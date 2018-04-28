@@ -19,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },
-    PasswordHash: {
+    Password: {
       type: DataTypes.STRING(64),
       allowNull: false
     },
@@ -36,10 +36,6 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
-    },
-    PasswordSalt: {
-      type: DataTypes.STRING(64),
-      allowNull: false
     },
     WarehouseID: {
       type: DataTypes.INTEGER(11),
