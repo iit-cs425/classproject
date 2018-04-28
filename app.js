@@ -161,6 +161,9 @@ app.get('/administrator', function (req, res) {
 	});
 });
 
+app.get('/login', function(req, res) {
+  res.render('login')
+});
 
 app.post('/process_login', urlencodedParser, function (req, res) {
    // Prepare output in JSON format
