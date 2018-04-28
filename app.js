@@ -57,9 +57,9 @@ Product.belongsToMany(Category, { through: 'productincategory'});
 // Warehouses can have managers (Users).  It's not smart enough to figure out
 // that it should create one table and then add the constraint, like
 // `create.sql` does, so it'll fail with a cyclic dependency error.
-sequelize.sync().then(function() {
-  console.log("synced");
-});
+// sequelize.sync().then(function() {
+//   console.log("synced");
+// });
 
 var mysql = require('mysql');
 var con = mysql.createConnection({
