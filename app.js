@@ -311,6 +311,10 @@ app.post('/edit_address/', urlencodedParser, function(req, res) {
   });
 });
 
+app.get('/change_password', function(req, res) {
+  res.render('change_password');
+});
+
 // Start the server
 const PORT = process.env.PORT || 80;
 var server = app.listen(PORT, () => {
