@@ -4,11 +4,17 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('address', {
     ContactName: {
       type: DataTypes.STRING(64),
-      allowNull: false
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
     },
     CompanyName: {
       type: DataTypes.STRING(64),
-      allowNull: true
+      allowNull: true,
+      validate: {
+        notEmpty: true
+      }
     },
     District: {
       type: DataTypes.STRING(64),
@@ -16,19 +22,31 @@ module.exports = function(sequelize, DataTypes) {
     },
     Province_State: {
       type: DataTypes.STRING(64),
-      allowNull: false
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
     },
     Nation: {
       type: DataTypes.STRING(64),
-      allowNull: false
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
     },
     PostalCode: {
       type: DataTypes.STRING(16),
-      allowNull: false
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
     },
     City: {
       type: DataTypes.STRING(32),
-      allowNull: false
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
     },
     AddressID: {
       type: DataTypes.INTEGER(11),
