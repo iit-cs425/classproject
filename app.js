@@ -238,6 +238,22 @@ app.get('/addresses', function(req, res) {
   });
 });
 
+/**
+ * Delete an address given by AddressID, if it belongs to the signed-in user.
+ */
+app.get('/del_address/:AddressID', function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    if (user === null) {
+      res.status(400);
+      res.send("User not found! Try logging in again.");
+    } else {
+      user.removeAddress(req.params['AddressID']).then(results => {
+        res.send("Address was deleted.")
+      });
+    }
+  });
+});
+
 
 // Start the server
 const PORT = process.env.PORT || 80;
