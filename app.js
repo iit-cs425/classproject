@@ -253,10 +253,16 @@ app.get('/del_address/:AddressID', function(req, res) {
   });
 });
 
+/**
+ * Prompt user to enter a new address.
+ */
 app.get('/new_address/', function(req, res) {
   res.render('new_address');
 });
 
+/**
+ * Save a new address entered by the user.
+ */
 app.post('/new_address/', urlencodedParser, function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
     return Address.create({
@@ -277,6 +283,9 @@ app.post('/new_address/', urlencodedParser, function(req, res) {
 });
 
 // TODO: make sure user owns address
+/**
+ * Prompt user to edit an address given by AddressID.
+ */
 app.get('/edit_address/:AddressID', function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
     Address.findById(req.params['AddressID']).then(address => {
@@ -288,6 +297,9 @@ app.get('/edit_address/:AddressID', function(req, res) {
 });
 
 // TODO: make sure user owns address
+/**
+ * Edit an address owned by the user.
+ */
 app.post('/edit_address/', urlencodedParser, function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
     return Address.findById(req.body.AddressID);
@@ -307,10 +319,18 @@ app.post('/edit_address/', urlencodedParser, function(req, res) {
   });
 });
 
+/**
+ * Prompt user to change their password.
+ */
 app.get('/change_password', function(req, res) {
   res.render('change_password');
 });
 
+/**
+ * Process a user's request to change their password.  If they authenticate,
+ * their password was entered without typos, and wasn't terrible, update the
+ * database with the hashed password + salt.
+ */
 app.post('/change_password', urlencodedParser, function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
     if (false) {  // password is incorrect?
