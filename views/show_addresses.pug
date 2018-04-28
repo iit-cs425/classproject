@@ -1,28 +1,28 @@
 doctype html
 html(lang="en")
   head
-    title= "Address change"
+    title= "Your addresses"
   body
     h1 Your addresses
     each address in addresses
         table(border=1)
             tr
-                td ContactName
+                td Contact name
                 td #{address.get().ContactName}
             tr
-                td CompanyName
+                td Company name
                 td #{address.get().CompanyName}
             tr
                 td District
                 td #{address.get().District}
             tr
-                td Province_State
+                td Province / state
                 td #{address.get().Province_State}
             tr
                 td Nation
                 td #{address.get().Nation}
             tr
-                td PostalCode
+                td Postal code
                 td #{address.get().PostalCode}
             tr
                 td City
