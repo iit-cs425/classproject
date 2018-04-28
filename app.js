@@ -278,6 +278,39 @@ app.post('/new_address/', urlencodedParser, function(req, res) {
   });
 });
 
+app.get('/edit_address/:AddressID', function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    Address.findById(req.params['AddressID']).then(address => {
+      res.render('edit_address', {
+        address: address.get()
+      });
+    });
+  });
+});
+
+app.post('/edit_address/', urlencodedParser, function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    Address.findById(req.body.AddressID).then(address => {
+      address.update({
+        ContactName: req.body.ContactName,
+        CompanyName: req.body.CompanyName ? req.body.CompanyName : null,
+        District: req.body.District ? req.body.District : null,
+        Province_State: req.body.Province_State,
+        Nation: req.body.Nation,
+        PostalCode: req.body.PostalCode,
+        City: req.body.City}).then(() => {
+          res.redirect("/addresses");
+        }).catch(error => {
+          res.send("couldn't update address");
+        });
+    }).catch(error => {
+      res.send("couldn't find address");
+    });
+  }).catch(error => {
+    res.send("couldn't find user");
+  });
+});
+
 // Start the server
 const PORT = process.env.PORT || 80;
 var server = app.listen(PORT, () => {
