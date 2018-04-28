@@ -185,7 +185,7 @@ app.post('/process_login', urlencodedParser, function (req, res) {
 		res.status (400);
 		res.send ('<a href="login.html">Bad login</a>');
 	} else {
-    bcrypt.compare(req.body.password, results[0].PasswordHash).then(passOK => {
+    bcrypt.compare(req.body.password, results[0].Password).then(passOK => {
       if (passOK) {
         console.log ("Password Match");
         let options = {
@@ -333,22 +333,22 @@ app.get('/change_password', function(req, res) {
  */
 app.post('/change_password', urlencodedParser, function(req, res) {
   User.findById(req.signedCookies['UserID']).then(user => {
-    bcrypt.compare(req.body['oldPassword'], user.PasswordHash).then(passOK => {
-      if (!passOK) {  // password is incorrect?
+    bcrypt.compare(req.body['oldPassword'], user.Password).then(passOK => {
+      if (!passOK) {
         res.send("incorrect password");
       }
       if (req.body['password1'] !== req.body['password2']) {
         res.send("passwords didn't match");
       }
-      if (false) { // if password doesn't meet complexity rules
+      const newPass = req.body['password1'];
+      if (false) { // TODO: can't begin or end with whitespace; >=8 chars, printable ASCII only
         res.send("not up-to-par")
       }
       return bcrypt.genSalt(10);
     }).then(salt => {
       return bcrypt.hash(req.body['password1'], salt);
     }).then(hash => {
-      console.log(hash);
-      return user.update({ PasswordHash: hash });
+      return user.update({ Password: hash });
     }).then(result => {
       res.send("Password changed.");
     }).catch(error => {
