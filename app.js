@@ -343,8 +343,11 @@ app.post('/change_password', urlencodedParser, function(req, res) {
         res.send("passwords didn't match");
       }
       const newPass = req.body['password1'];
-      if (false) { // TODO: can't begin or end with whitespace; >=8 chars, printable ASCII only
-        res.send("not up-to-par")
+      if (newPass != newPass.trim()) {
+        res.send("Password can't begin or end with whitespace.")
+      }
+      if (newPass.length() < 8) {
+        res.send("Password must be more than 8 characters.")
       }
       return bcrypt.genSalt(10);
     }).then(salt => {
