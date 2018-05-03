@@ -365,6 +365,20 @@ app.post('/change_password', urlencodedParser, function(req, res) {
   })
 });
 
+/*
+ * Show a user's products.
+ */
+app.get('/products', function(req, res) {
+  // Show the user's entered addresses, with buttons to add or change them.
+  User.findById(req.signedCookies['UserID']).then(user => {
+    user.getProducts().then(results => {
+      res.render('show_products', {
+        products: results
+      });
+    });
+  });
+});
+
 // Start the server
 const PORT = process.env.PORT || 80;
 var server = app.listen(PORT, () => {
