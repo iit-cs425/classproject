@@ -62,6 +62,7 @@ Product.belongsToMany(Category, { through: 'productincategory'});
 // });
 
 var mysql = require('mysql');
+
 var con = mysql.createConnection({
 	host: "localhost",
 	user: "cs425",
@@ -104,9 +105,11 @@ app.get('/cookies', (req, res) => {
 	var outHead = "Welcome ";
 	if (req.signedCookies['IsAdmin'] === 'true') outHead += '<a href="/administrator">administrator </a>';
 	if (req.signedCookies['IsEmployee'] === 'true') outHead += '<a href="/employee">employee </a>';
-	if (req.signedCookies['IsMerchant'] === 'true') outHead += '<a href="/merchant">merchant </a>';
-	outHead += req.signedCookies['Username'];
-	if (!/null/.test(req.signedCookies['WarehouseID'])) outHead += " with " + '<a href="/warehouse">warehouse </a>' + req.signedCookies['WarehouseID'];
+	if (req.signedCookies['IsMerchant'] === 'true') outHead += `<a href="/merchant/${req.signedCookies['UserID']}">merchant </a>`;
+	outHead += '<a href="/user/' + req.signedCookies['UserID'] + '">' + req.signedCookies['Username'] + ' </a>';
+	if (req.signedCookies['WarehouseID'] != 'null') {
+		outHead += '<a href="/warehouse/' + req.signedCookies['WarehouseID'] + '">warehouse ' + req.signedCookies['WarehouseID'] + '</a>';
+	}
 	res.type ('html');
 	res.status (200);
 	// res.send(req.signedCookies).end();
@@ -128,21 +131,158 @@ app.get('/process_get', function (req, res) {
     res.end(JSON.stringify(response));
  })
 
-app.get('/administrator', function (req, res) {
-    con.query('SELECT * from User', function (error, results, fields) {
+app.get('/warehouse/:WarehouseID', function (req, res) {
+    con.query(`SELECT Warehouse.WarehouseID, RegionName, Username, Nation, Province_State, District, City from Warehouse, User, Address
+		where Address.AddressID = Warehouse.AddressID and UserID = ManagerID and
+		Warehouse.WarehouseID = ${req.params.WarehouseID}`, function (error, results, fields) {
 		var i;
 		var outPage = ` <table >
-<tr>
-<th>Username</th>
-<th>IsAdmin</th>
-<th>IsEmployee</th>
-<th>IsMerchant</th>
-<th>PhoneNumber</th>
-<th>EmailAddress</th>
-<th>UserID</th>
-<th>WarehouseID</th>
-</tr>\n
-`;
+			<tr>
+				<th>WarehouseID</th>
+				<th>RegionName</th>
+				<th>Nation</th>
+				<th>Province_State</th>
+				<th>District</th>
+				<th>City</th>
+				<th>Manager</th>
+			</tr>\n`;
+		res.type ('html');
+		res.status (200);
+
+		for (i = 0; i < results.length; i++) {
+			outPage += "<tr>";
+			outPage += "<td>" + results[i].WarehouseID + "</td>";
+			outPage += "<td>" + results[i].RegionName + "</td>";
+			outPage += "<td>" + results[i].Nation + "</td>";
+			outPage += "<td>" + results[i].Province_State + "</td>";
+			outPage += "<td>" + results[i].District + "</td>";
+			outPage += "<td>" + results[i].City + "</td>";
+			outPage += "<td>" + results[i].Username + "</td>";
+			outPage += "</tr>\n";
+		}
+		outPage += "\n</table>\n"
+		res.send (outPage);
+	});
+});
+
+app.get('/merchant/:UserID', function (req, res) {
+    con.query(`SELECT * from Product where MerchantID = ${req.params.UserID}`, function (error, results, fields) {
+		var i;
+		var outPage = ` <table >
+			<tr>
+				<th>Prod Name</th>
+				<th>Description</th>
+				<th>ID</th>
+				<th>Attr1 Name</th>
+				<th>Desc</th>
+				<th>Attr2 Name</th>
+				<th>Desc</th>
+				<th>Qty Now</th>
+				<th>Low</th>
+				<th>Refill</th>
+				<th>Price</th>
+				<th>Warehouse</th>
+			</tr>\n`;
+		res.type ('html');
+		res.status (200);
+
+		for (i = 0; i < results.length; i++) {
+			outPage += "<tr><td>" + results[i].Name + "</td>";
+			outPage += "<td>" + results[i].Description + "</td>";
+			outPage += "<td>" + results[i].ProductID + "</td>";
+			outPage += "<td>" + results[i].Attribute1Name + "</td>";
+			outPage += "<td>" + results[i].Attribute1Description + "</td>";
+			outPage += "<td>" + results[i].Attribute2Name + "</td>";
+			outPage += "<td>" + results[i].Attribute2Description + "</td>";
+			outPage += "<td>" + results[i].QuantityNow + "</td>";
+			outPage += "<td>" + results[i].QuantityLow + "</td>";
+			outPage += "<td>" + results[i].QuantityRefill + "</td>";
+			outPage += "<td>" + results[i].Price + "</td>";
+			outPage += "<td>" + results[i].WarehouseID + "</td></tr>\n";
+		}
+		outPage += "\n</table>\n"
+		res.send (outPage);
+	});
+});
+
+app.get('/user/:UserID', function (req, res) {
+    con.query(`SELECT * from User where UserID = ${req.params.UserID}`, function (error, results, fields) {
+		var i;
+		var outPage = ` <table >
+			<tr>
+				<th>Username</th>
+				<th>IsAdmin</th>
+				<th>IsEmployee</th>
+				<th>IsMerchant</th>
+				<th>PhoneNumber</th>
+				<th>EmailAddress</th>
+				<th>UserID</th>
+				<th>WarehouseID</th>
+			</tr>\n`;
+		res.type ('html');
+		res.status (200);
+
+		for (i = 0; i < results.length; i++) {
+			outPage += "<tr><td>" + results[i].Username + "</td>";
+			outPage += "<td>" + results[i].IsAdmin + "</td>";
+			outPage += "<td>" + results[i].IsEmployee + "</td>";
+			outPage += "<td>" + results[i].IsMerchant + "</td>";
+			outPage += "<td>" + results[i].PhoneNumber + "</td>";
+			outPage += "<td>" + results[i].EmailAddress + "</td>";
+			outPage += "<td>" + results[i].UserID + "</td>";
+			outPage += "<td>" + results[i].WarehouseID + "</td></tr>\n";
+		}
+		outPage += "\n</table>\n"
+		res.send (outPage);
+	});
+});
+
+app.get('/administrator', function (req, res) {
+    con.query(`SELECT * from User`, function (error, results, fields) {
+		var i;
+		var outPage = ` <table >
+			<tr>
+				<th>Username</th>
+				<th>IsAdmin</th>
+				<th>IsEmployee</th>
+				<th>IsMerchant</th>
+				<th>PhoneNumber</th>
+				<th>EmailAddress</th>
+				<th>UserID</th>
+				<th>WarehouseID</th>
+			</tr>\n`;
+		res.type ('html');
+		res.status (200);
+
+		for (i = 0; i < results.length; i++) {
+			outPage += "<tr><td>" + results[i].Username + "</td>";
+			outPage += "<td>" + results[i].IsAdmin + "</td>";
+			outPage += "<td>" + results[i].IsEmployee + "</td>";
+			outPage += "<td>" + results[i].IsMerchant + "</td>";
+			outPage += "<td>" + results[i].PhoneNumber + "</td>";
+			outPage += "<td>" + results[i].EmailAddress + "</td>";
+			outPage += "<td>" + results[i].UserID + "</td>";
+			outPage += "<td>" + results[i].WarehouseID + "</td></tr>\n";
+		}
+		outPage += "\n</table>\n"
+		res.send (outPage);
+	});
+});
+
+app.get('/employee', function (req, res) {
+    con.query(`SELECT * from User where UserID = ${req.signedCookies['UserID']}`, function (error, results, fields) {
+		var i;
+		var outPage = ` <table >
+			<tr>
+				<th>Username</th>
+				<th>IsAdmin</th>
+				<th>IsEmployee</th>
+				<th>IsMerchant</th>
+				<th>PhoneNumber</th>
+				<th>EmailAddress</th>
+				<th>UserID</th>
+				<th>WarehouseID</th>
+			</tr>\n`;
 		res.type ('html');
 		res.status (200);
 
@@ -161,9 +301,6 @@ app.get('/administrator', function (req, res) {
 	});
 });
 
-app.get('/login', function(req, res) {
-  res.render('login')
-});
 
 app.post('/process_login', urlencodedParser, function (req, res) {
    // Prepare output in JSON format
@@ -178,6 +315,7 @@ app.post('/process_login', urlencodedParser, function (req, res) {
     }
 
 
+    console.log('SELECT * from User where Username = "' + req.body.Username + '"');
     con.query('SELECT * from User where Username = "' + req.body.Username + '"', function (error, results, fields) {
 	  if (error) throw error;
 	  if (results.length === 0) {
@@ -481,3 +619,5 @@ var server = app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
 });
+
+// [END app]
