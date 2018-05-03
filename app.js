@@ -573,6 +573,7 @@ app.get('/del_product/:ProductID', function(req, res) {
     }
   });
 });
+// app.use(express.static('public'));
 
 /**
  * Prompt user to enter a new product.
