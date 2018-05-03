@@ -379,6 +379,42 @@ app.get('/products', function(req, res) {
   });
 });
 
+/**
+ * Prompt user to edit a product given by ProductID.
+ */
+app.get('/edit_product/:ProductID', function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    Product.findById(req.params['ProductID']).then(product => {
+      res.render('edit_product', {
+        prod: product.get()
+      });
+    });
+  });
+});
+
+
+app.post('/edit_product/', urlencodedParser, function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    return Product.findById(req.body.ProductID);
+  }).then(product => {
+    return product.update({
+      Name: req.body.Name,
+      Price: req.body.Price,
+      Description: req.body.Description,
+      Attribute1Name: req.body.Attribute1Name ? req.body.Attribute1Name : null,
+      Attribute1Value: req.body.Attribute1Value ? req.body.Attribute1Value : null,
+      Attribute2Name: req.body.Attribute2Name ? req.body.Attribute2Name : null,
+      Attribute2Value: req.body.Attribute2Value ? req.body.Attribute2Value : null,
+      QuantityNow: req.body.QuantityNow,
+      QuantityLow: req.body.QuantityLow,
+      QuantityRefill: req.body.QuantityRefill});
+  }).then(() => {
+    res.redirect("/products");
+  }).catch(error => {
+    res.send("something went wrong");
+  });
+});
+
 // Start the server
 const PORT = process.env.PORT || 80;
 var server = app.listen(PORT, () => {
