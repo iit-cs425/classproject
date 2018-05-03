@@ -577,3 +577,30 @@ INSERT INTO `ProductInCategory` (`ProductInCategoryID`, `ProductID`, `CategoryID
 (73, 91, 49),
 (74, 33, 12),
 (75, 93, 36);
+
+UPDATE User
+SET WarehouseID = 9;
+UPDATE User
+SET WarehouseID = 1
+WHERE UserID BETWEEN 1 AND 20;
+UPDATE User
+SET WarehouseID = 2
+WHERE UserID BETWEEN 21 AND 40;
+UPDATE User
+SET WarehouseID = 3
+WHERE UserID BETWEEN 41 AND 60;
+UPDATE User
+SET WarehouseID = 4
+WHERE UserID BETWEEN 61 AND 80;
+UPDATE User
+SET WarehouseID = 5
+WHERE UserID BETWEEN 81 AND 100;
+UPDATE User
+SET WarehouseID = 6
+WHERE UserID BETWEEN 101 AND 120;
+UPDATE User
+SET WarehouseID = 7
+WHERE UserID BETWEEN 121 AND 140;
+UPDATE User
+SET WarehouseID = 8
+WHERE UserID BETWEEN 140 AND 160;
