@@ -436,6 +436,45 @@ app.get('/del_product/:ProductID', function(req, res) {
   });
 });
 
+/**
+ * Prompt user to enter a new product.
+ */
+app.get('/new_product/', function(req, res) {
+  res.render('new_product');
+});
+
+/**
+ * Save a new product entered by the user.
+ */
+app.post('/new_product/', urlencodedParser, function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    Product.create({
+      Name: req.body.Name,
+      Price: req.body.Price,
+      Description: req.body.Description,
+      Attribute1Name: req.body.Attribute1Name ? req.body.Attribute1Name : null,
+      Attribute1Value: req.body.Attribute1Value ? req.body.Attribute1Value : null,
+      Attribute2Name: req.body.Attribute2Name ? req.body.Attribute2Name : null,
+      Attribute2Value: req.body.Attribute2Value ? req.body.Attribute2Value : null,
+      QuantityNow: req.body.QuantityNow,
+      QuantityLow: req.body.QuantityLow,
+      QuantityRefill: req.body.QuantityRefill,
+      MerchantID: user.get().UserID,
+      WarehouseID: user.get().WarehouseID
+    }).then(() => {
+      res.redirect("/products");
+    }).catch(error => {
+      if (user.get().WarehouseID === null) {
+        res.send("You haven't been assigned to a warehouse yet, so we don't know where to put this product.")
+      } else {
+        res.send(error);
+      }
+    });
+  }).catch(error => {
+    res.send(error);
+  });
+});
+
 // Start the server
 const PORT = process.env.PORT || 80;
 var server = app.listen(PORT, () => {
