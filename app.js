@@ -415,6 +415,27 @@ app.post('/edit_product/', urlencodedParser, function(req, res) {
   });
 });
 
+/**
+ * Delete an product given by ProductID, if it belongs to the signed-in user.
+ */
+app.get('/del_product/:ProductID', function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    if (user === null) {
+      res.status(400);
+      res.send("User not found! Try logging in again.");
+    } else {
+      Product.findById(req.params['ProductID']).then(product => {
+        if (product.MerchantID != req.signedCookies['UserID']) {
+          res.send("Not your product");
+        } else {
+          product.destroy();
+          res.send("Product destroyed.");
+        }
+      });
+    }
+  });
+});
+
 // Start the server
 const PORT = process.env.PORT || 80;
 var server = app.listen(PORT, () => {
