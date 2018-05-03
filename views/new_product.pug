@@ -1,0 +1,49 @@
+doctype html
+html(lang="en")
+  head
+    title= "New Product"
+  body
+    h1 Add a new product
+    form(action="/new_product/",method="POST")
+        table(border=1)
+            tr
+                td Product name
+                td
+                    input(type="text",name="Name")
+            tr
+                td Price
+                td
+                    input(type="text",name="Price")
+            tr
+                td Description
+                td
+                    input(type="text",name="Description")
+            tr
+                td Attribute
+                td
+                    input(type="text",name="Attribute1Name")
+            tr
+                td Attribute (Value)
+                td
+                    input(type="text",name="Attribute1Value")
+            tr
+                td Attribute
+                td
+                    input(type="text",name="Attribute2Name")
+            tr
+                td Attribute (Value)
+                td
+                    input(type="text",name="Attribute2Value")
+            tr
+                td Number in stock
+                td
+                    input(type="text",name="QuantityNow")
+            tr
+                td "Low" threshold
+                td
+                    input(type="text",name="QuantityLow")
+            tr
+                td "Refill" threshold
+                td
+                    input(type="text",name="QuantityRefill")
+        input(type="submit", value="Submit")

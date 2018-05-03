@@ -50,7 +50,7 @@ Warehouse.hasOne(Address, { foreignKey: 'AddressID', constraints: false});
 Warehouse.hasMany(Product, { foreignKey: 'ProductID' });
 User.belongsToMany(Address, {through: 'userhasaddress', foreignKey: 'UserID', otherKey: 'AddressID'});
 User.hasMany(Category, { foreignKey: 'CategoryID'});
-User.hasMany(Product, { foreignKey: 'ProductID'});
+User.hasMany(Product, { foreignKey: 'MerchantID'});
 User.belongsTo(Warehouse, {foreignKey: 'WarehouseID'})
 Product.belongsToMany(Category, { through: 'productincategory'});
 // Note - those constraints:false are because Users can have Warehouses, but
@@ -343,8 +343,11 @@ app.post('/change_password', urlencodedParser, function(req, res) {
         res.send("passwords didn't match");
       }
       const newPass = req.body['password1'];
-      if (false) { // TODO: can't begin or end with whitespace; >=8 chars, printable ASCII only
-        res.send("not up-to-par")
+      if (newPass != newPass.trim()) {
+        res.send("Password can't begin or end with whitespace.")
+      }
+      if (newPass.length() < 8) {
+        res.send("Password must be more than 8 characters.")
       }
       return bcrypt.genSalt(10);
     }).then(salt => {
@@ -360,6 +363,116 @@ app.post('/change_password', urlencodedParser, function(req, res) {
   }).catch(error => {
     res.send("Couldn't find your user.  Are you logged in?")
   })
+});
+
+/*
+ * Show a user's products.
+ */
+app.get('/products', function(req, res) {
+  // Show the user's entered addresses, with buttons to add or change them.
+  User.findById(req.signedCookies['UserID']).then(user => {
+    user.getProducts().then(results => {
+      res.render('show_products', {
+        products: results
+      });
+    });
+  });
+});
+
+/**
+ * Prompt user to edit a product given by ProductID.
+ */
+app.get('/edit_product/:ProductID', function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    Product.findById(req.params['ProductID']).then(product => {
+      res.render('edit_product', {
+        prod: product.get()
+      });
+    });
+  });
+});
+
+
+app.post('/edit_product/', urlencodedParser, function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    return Product.findById(req.body.ProductID);
+  }).then(product => {
+    return product.update({
+      Name: req.body.Name,
+      Price: req.body.Price,
+      Description: req.body.Description,
+      Attribute1Name: req.body.Attribute1Name ? req.body.Attribute1Name : null,
+      Attribute1Value: req.body.Attribute1Value ? req.body.Attribute1Value : null,
+      Attribute2Name: req.body.Attribute2Name ? req.body.Attribute2Name : null,
+      Attribute2Value: req.body.Attribute2Value ? req.body.Attribute2Value : null,
+      QuantityNow: req.body.QuantityNow,
+      QuantityLow: req.body.QuantityLow,
+      QuantityRefill: req.body.QuantityRefill});
+  }).then(() => {
+    res.redirect("/products");
+  }).catch(error => {
+    res.send("something went wrong");
+  });
+});
+
+/**
+ * Delete an product given by ProductID, if it belongs to the signed-in user.
+ */
+app.get('/del_product/:ProductID', function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    if (user === null) {
+      res.status(400);
+      res.send("User not found! Try logging in again.");
+    } else {
+      Product.findById(req.params['ProductID']).then(product => {
+        if (product.MerchantID != req.signedCookies['UserID']) {
+          res.send("Not your product");
+        } else {
+          product.destroy();
+          res.send("Product destroyed.");
+        }
+      });
+    }
+  });
+});
+
+/**
+ * Prompt user to enter a new product.
+ */
+app.get('/new_product/', function(req, res) {
+  res.render('new_product');
+});
+
+/**
+ * Save a new product entered by the user.
+ */
+app.post('/new_product/', urlencodedParser, function(req, res) {
+  User.findById(req.signedCookies['UserID']).then(user => {
+    Product.create({
+      Name: req.body.Name,
+      Price: req.body.Price,
+      Description: req.body.Description,
+      Attribute1Name: req.body.Attribute1Name ? req.body.Attribute1Name : null,
+      Attribute1Value: req.body.Attribute1Value ? req.body.Attribute1Value : null,
+      Attribute2Name: req.body.Attribute2Name ? req.body.Attribute2Name : null,
+      Attribute2Value: req.body.Attribute2Value ? req.body.Attribute2Value : null,
+      QuantityNow: req.body.QuantityNow,
+      QuantityLow: req.body.QuantityLow,
+      QuantityRefill: req.body.QuantityRefill,
+      MerchantID: user.get().UserID,
+      WarehouseID: user.get().WarehouseID
+    }).then(() => {
+      res.redirect("/products");
+    }).catch(error => {
+      if (user.get().WarehouseID === null) {
+        res.send("You haven't been assigned to a warehouse yet, so we don't know where to put this product.")
+      } else {
+        res.send(error);
+      }
+    });
+  }).catch(error => {
+    res.send(error);
+  });
 });
 
 // Start the server

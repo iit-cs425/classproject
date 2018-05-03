@@ -1,0 +1,50 @@
+doctype html
+html(lang="en")
+  head
+    title= "Edit Product"
+  body
+    h1 Edit this product
+    form(action="/edit_product/",method="POST")
+        input(name="ProductID",value=prod.ProductID,type="hidden")
+        table(border=1)
+            tr
+                td Product name
+                td
+                    input(type="text",name="Name",value=prod.Name)
+            tr
+                td Price
+                td
+                    input(type="text",name="Price",value=prod.Price)
+            tr
+                td Description
+                td
+                    input(type="text",name="Description",value=prod.Description)
+            tr
+                td Attribute
+                td
+                    input(type="text",name="Attribute1Name",value=prod.Attribute1Name)
+            tr
+                td Attribute (Value)
+                td
+                    input(type="text",name="Attribute1Value",value=prod.Attribute1Value)
+            tr
+                td Attribute
+                td
+                    input(type="text",name="Attribute2Name",value=prod.Attribute2Name)
+            tr
+                td Attribute (Value)
+                td
+                    input(type="text",name="Attribute2Value",value=prod.Attribute2Value)
+            tr
+                td Number in stock
+                td
+                    input(type="text",name="QuantityNow",value=prod.QuantityNow)
+            tr
+                td "Low" threshold
+                td
+                    input(type="text",name="QuantityLow",value=prod.QuantityLow)
+            tr
+                td "Refill" threshold
+                td
+                    input(type="text",name="QuantityRefill",value=prod.QuantityRefill)
+        input(type="submit", value="Submit")

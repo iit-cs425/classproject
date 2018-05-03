@@ -1,0 +1,43 @@
+doctype html
+html(lang="en")
+  head
+    title="Your products"
+  body
+    h1 Your products
+    table(border=1)
+        tr
+            td Name
+            td Price
+            td Description
+            td Attribute
+            td Attribute (Value)
+            td Attribute
+            td Attribute (Value)
+            td # in stock
+            td "low" threshold
+            td "refill" threshold
+            td Photograph
+            td Edit
+            td Delete
+        each prod in products
+            tr
+                td #{prod.get().Name}
+                td #{prod.get().Price}
+                td #{prod.get().Description}
+                td #{prod.get().Attribute1Name}
+                td #{prod.get().Attribute1Value}
+                td #{prod.get().Attribute2Name}
+                td #{prod.get().Attribute2Value}
+                td #{prod.get().QuantityNow}
+                td #{prod.get().QuantityLow}
+                td #{prod.get().QuantityRefill}
+                td #{prod.get().Photograph}
+                td
+                    form(action="/edit_product/"+prod.get().ProductID)
+                        input(type="submit", value="Edit")
+                td
+                    form(action="/del_product/"+prod.get().ProductID)
+                        input(type="submit", value="Delete")
+        br
+    form(action="/new_product")
+        input(type="submit", value="Add New")
