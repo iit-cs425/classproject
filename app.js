@@ -337,7 +337,8 @@ app.post('/process_login', urlencodedParser, function (req, res) {
         res.cookie('IsAdmin', results[0].IsAdmin, options);
         res.cookie('IsEmployee', results[0].IsEmployee, options);
         res.cookie('IsMerchant', results[0].IsMerchant, options);
-        res.cookie('WarehouseID', results[0].WarehouseID, options);
+		if (results[0].WarehouseID === null) res.cookie('WarehouseID', 'null', options);
+        else res.cookie('WarehouseID', results[0].WarehouseID, options);
         res.redirect ("/cookies");
       } else {
         res.status(400);
