@@ -50,7 +50,7 @@ Warehouse.hasOne(Address, { foreignKey: 'AddressID', constraints: false});
 Warehouse.hasMany(Product, { foreignKey: 'ProductID' });
 User.belongsToMany(Address, {through: 'userhasaddress', foreignKey: 'UserID', otherKey: 'AddressID'});
 User.hasMany(Category, { foreignKey: 'CategoryID'});
-User.hasMany(Product, { foreignKey: 'ProductID'});
+User.hasMany(Product, { foreignKey: 'MerchantID'});
 User.belongsTo(Warehouse, {foreignKey: 'WarehouseID'})
 Product.belongsToMany(Category, { through: 'productincategory'});
 // Note - those constraints:false are because Users can have Warehouses, but
